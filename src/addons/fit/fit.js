@@ -17,7 +17,7 @@
      * CommonJS environment
      */
     module.exports = fit(require('../../xterm'));
-  } else if (typeof define == 'function') {
+  } else if (typeof define == 'function' && define.amd) {
     /*
      * Require.js is available
      */

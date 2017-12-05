@@ -15,6 +15,11 @@ const source = require('vinyl-source-stream');
 const sourcemaps = require('gulp-sourcemaps');
 const ts = require('gulp-typescript');
 const util = require('gulp-util');
+var uglifyjs = require('uglify-js'); // can be a git checkout 
+// or another module (such as `uglify-es` for ES6 support) 
+var composer = require('gulp-uglify/composer');
+var rename = require('gulp-rename');
+var minify = composer(uglifyjs, console);
 
 let buildDir = process.env.BUILD_DIR || 'build';
 let tsProject = ts.createProject('tsconfig.json');
@@ -145,10 +150,19 @@ gulp.task('mocha-test', ['instrument-test'], function () {
  * (Without this task the source maps produced for the JavaScript bundle points into the
  * compiled JavaScript files in ${outDir}/).
  */
-gulp.task('sorcery', ['browserify'], function () {
+gulp.task('sorcery', ['compress'], function () {
   let chain = sorcery.loadSync(`${buildDir}/xterm.js`);
   chain.apply();
   chain.writeSync();
+});
+
+gulp.task('compress',['browserify'], function () {
+  // the same options as described above 
+  var options = {};
+      return gulp.src(`${buildDir}/xterm.js`)
+      .pipe(minify(options))
+      .pipe(rename({ suffix: '.min' }))
+      .pipe(gulp.dest(`${buildDir}`));
 });
 
 gulp.task('sorcery-addons', ['browserify-addons'], function () {
